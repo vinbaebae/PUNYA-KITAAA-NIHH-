@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAI Tutorial Pecahan</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f0f4f8;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+    .hidden {
+      display: none;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .leaderboard {
+      list-style: none;
+      padding: 0;
+    }
+    .leaderboard li {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Input Nama -->
+    <div class="card" id="startScreen">
+      <h2>Selamat datang di Tutorial Pecahan</h2>
+      <p>Masukkan nama Anda:</p>
+      <input type="text" id="nama" placeholder="Nama Anda" />
+      <button onclick="startTutorial()">Mulai</button>
+    </div>
+
+    <!-- Materi -->
+    <div class="card hidden" id="materi">
+      <h2>Materi: Pengenalan Pecahan</h2>
+      <p>Pecahan adalah bilangan yang menyatakan bagian dari keseluruhan. Contohnya: 1/2, 3/4.</p>
+      <button onclick="nextSection('contoh')">Lanjut</button>
+    </div>
+
+    <!-- Contoh Soal -->
+    <div class="card hidden" id="contoh">
+      <h2>Contoh Soal</h2>
+      <p>Jika satu kue dibagi menjadi 4 bagian sama besar, dan kamu makan 3 bagian, maka kamu makan 3/4 kue.</p>
+      <button onclick="nextSection('latihan')">Lanjut ke Latihan</button>
+    </div>
+
+    <!-- Latihan Soal -->
+    <div class="card hidden" id="latihan">
+      <h2>Latihan</h2>
+      <p>Apa pembilang dari 2/5?</p>
+      <input type="text" id="jawabanLatihan" />
+      <button onclick="cekLatihan()">Periksa Jawaban</button>
+      <p id="feedbackLatihan"></p>
+    </div>
+
+    <!-- Evaluasi -->
+    <div class="card hidden" id="evaluasi">
+      <h2>Evaluasi</h2>
+      <p>1. Berapa penyebut dari 3/8?</p>
+      <input type="text" id="jawabanEvaluasi" />
+      <button onclick="cekEvaluasi()">Kumpulkan Jawaban</button>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="card hidden" id="leaderboard">
+      <h2>Leaderboard</h2>
+      <p>Selamat, <span id="namaPengguna"></span>!</p>
+      <p>Skor Anda: <span id="skorAkhir"></span></p>
+      <h3>Peringkat</h3>
+      <ul class="leaderboard" id="listLeaderboard"></ul>
+    </div>
+
+  </div>
+
+  <script>
+    let skor = 0;
+
+    function startTutorial() {
+      const nama = document.getElementById('nama').value;
+      if (!nama) {
+        alert('Masukkan nama terlebih dahulu!');
+        return;
+      }
+      localStorage.setItem('nama', nama);
+      document.getElementById('startScreen').classList.add('hidden');
+      document.getElementById('materi').classList.remove('hidden');
+    }
+
+    function nextSection(id) {
+      const sections = ['materi', 'contoh', 'latihan', 'evaluasi', 'leaderboard'];
+      sections.forEach(sec => document.getElementById(sec).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function cekLatihan() {
+      const jawaban = document.getElementById('jawabanLatihan').value;
+      const feedback = document.getElementById('feedbackLatihan');
+      if (jawaban === '2') {
+        feedback.innerHTML = '<span style="color:green">Benar!</span>';
+        skor += 10;
+        setTimeout(() => nextSection('evaluasi'), 1000);
+      } else {
+        feedback.innerHTML = '<span style="color:red">Salah. Coba lagi.</span>';
+      }
+    }
+
+    function cekEvaluasi() {
+      const jawaban = document.getElementById('jawabanEvaluasi').value;
+      if (jawaban === '8') skor += 10;
+      tampilkanLeaderboard();
+    }
+
+    function tampilkanLeaderboard() {
+      nextSection('leaderboard');
+      const nama = localStorage.getItem('nama');
+      document.getElementById('namaPengguna').innerText = nama;
+      document.getElementById('skorAkhir').innerText = skor;
+
+      let data = JSON.parse(localStorage.getItem('leaderboard')) || [];
+      data.push({ nama, skor });
+      data.sort((a, b) => b.skor - a.skor);
+      localStorage.setItem('leaderboard', JSON.stringify(data));
+
+      const list = document.getElementById('listLeaderboard');
+      list.innerHTML = '';
+      data.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = `${item.nama} - ${item.skor}`;
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
